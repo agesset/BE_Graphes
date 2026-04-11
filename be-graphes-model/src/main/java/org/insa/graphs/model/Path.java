@@ -184,11 +184,20 @@ public class Path {
      * </ul>
      *
      * @return true if the path is valid, false otherwise.
-     * @deprecated Need to be implemented.
      */
     public boolean isValid() {
-
-        return false;
+        if (this.isEmpty())
+            return true;
+        else if (this.arcs.size() == 0)
+            return true;
+        else if (this.origin == this.arcs.getFirst().getOrigin()) {
+            for (int i = 0; i < this.arcs.size() - 1; i++) {
+                if (this.arcs.get(i).getDestination() != this.arcs.get(i + 1).getOrigin()) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /**
@@ -197,8 +206,8 @@ public class Path {
      * @return Total length of the path (in meters).
      */
     public float getLength() {
-        int length = 0;
-        for (Arc arc : arcs) {
+        float length = 0;
+        for (Arc arc : this.arcs) {
             length += arc.getLength();
         }
         return length;
