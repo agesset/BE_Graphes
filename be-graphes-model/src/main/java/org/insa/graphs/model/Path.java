@@ -197,11 +197,11 @@ public class Path {
      * @return Total length of the path (in meters).
      */
     public float getLength() {
-        int length = 0;
-        for (Arc arc : arcs) {
-            length += arc.getLength();
+        float length = 0;
+        for(Arc monArc : this.arcs){
+….          length += monArc.getLength();
         }
-        return length;
+        return Length;
     }
 
     /**
@@ -226,7 +226,11 @@ public class Path {
      */
     public double getMinimumTravelTime() {
         // TODO:
-        return 0;
+        double time = 0;
+        for(Object monArc : this.arcs){
+….          time += monArc.getLength();
+        }
+        return time;
     }
 
 }
