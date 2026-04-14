@@ -30,17 +30,17 @@ public class Path {
             throws IllegalArgumentException {
         List<Arc> arcs = new ArrayList<Arc>();
         if (nodes.size() == 0)
-            return new Path(graph, arcs);
+            return new Path(graph);
         if (nodes.size() == 1) {
             return new Path(graph, nodes.getFirst());
         }
         for (int i = 0; i < nodes.size() - 1; i++) {
             Node node = nodes.get(i);
             if (node.hasSuccessors()) {
-                List<Arc> nodeArcs = nodes.get(i).getSuccessors();
+                List<Arc> nodeArcs = node.getSuccessors();
                 Arc fastestArc = null;
-                for (int j = 1; j < nodeArcs.size(); j++) {
-                    Arc currentArc = nodeArcs.get(i);
+                for (int j = 0; j < nodeArcs.size(); j++) {
+                    Arc currentArc = nodeArcs.get(j);
                     if (currentArc.getDestination() == nodes.get(i + 1)) {
                         if (fastestArc != null) {
                             if (currentArc.getMinimumTravelTime() < fastestArc.getMinimumTravelTime()) {
@@ -53,13 +53,13 @@ public class Path {
                     }
                 }
                 if (fastestArc == null)
-                    return null;
+                    throw new IllegalArgumentException("Noeud suivant : " + nodes.get(i + 1) + ", pas dans successeurs du noeud courant : " + node);
                 else {
                     arcs.add(fastestArc);
                 }
             }
             else {
-                return null;
+                throw new IllegalArgumentException("Le noeud courant : " + node + ", n'a pas de successeurs");
             }
         }
         return new Path(graph, arcs);
@@ -79,36 +79,36 @@ public class Path {
             throws IllegalArgumentException {
         List<Arc> arcs = new ArrayList<Arc>();
         if (nodes.size() == 0)
-            return new Path(graph, arcs);
+            return new Path(graph);
         if (nodes.size() == 1) {
             return new Path(graph, nodes.getFirst());
         }
         for (int i = 0; i < nodes.size() - 1; i++) {
             Node node = nodes.get(i);
             if (node.hasSuccessors()) {
-                List<Arc> nodeArcs = nodes.get(i).getSuccessors();
-                Arc longestArc = null;
-                for (int j = 1; j < nodeArcs.size(); j++) {
-                    Arc currentArc = nodeArcs.get(i);
+                List<Arc> nodeArcs = node.getSuccessors();
+                Arc shortestArc = null;
+                for (int j = 0; j < nodeArcs.size(); j++) {
+                    Arc currentArc = nodeArcs.get(j);
                     if (currentArc.getDestination() == nodes.get(i + 1)) {
-                        if (longestArc != null) {
-                            if (currentArc.getLength() < longestArc.getLength()) {
-                                longestArc = currentArc;
+                        if (shortestArc != null) {
+                            if (currentArc.getLength() < shortestArc.getLength()) {
+                                shortestArc = currentArc;
                             }
                         }
                         else {
-                            longestArc = currentArc;
+                            shortestArc = currentArc;
                         }
                     }
                 }
-                if (longestArc == null)
-                    return null;
+                if (shortestArc == null)
+                    throw new IllegalArgumentException("Noeud suivant : " + nodes.get(i + 1) + ", pas dans successeurs du noeud courant : " + node);
                 else {
-                    arcs.add(longestArc);
+                    arcs.add(shortestArc);
                 }
             }
             else {
-                return null;
+                throw new IllegalArgumentException("Le noeud courant : " + node + ", n'a pas de successeurs");
             }
         }
         return new Path(graph, arcs);
