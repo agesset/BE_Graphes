@@ -47,9 +47,9 @@ public class Launch {
 
         // visit these directory to see the list of available files on commetud.
         final String mapName =
-                "/mnt/commetud/3eme Annee MIC/Graphes-et-Algorithmes/Maps/insa.mapgr";
+                "/home/flo/Documents/INSA/3MIC_S2/BE-Graphes/maps/haute-garonne.mapgr";
         final String pathName =
-                "/mnt/commetud/3eme Annee MIC/Graphes-et-Algorithmes/Paths/path_fr31insa_rangueil_r2.path";
+                "/home/flo/Documents/INSA/3MIC_S2/BE-Graphes/maps/path_fr31_insa_bikini_canal.path";
 
         final Graph graph;
         final Path path;

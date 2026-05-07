@@ -159,6 +159,7 @@ public abstract class PriorityQueueTest {
         for (MutableInteger v : parameters.data) {
             this.queue.insert(v);
         }
+
     }
 
     @Test
