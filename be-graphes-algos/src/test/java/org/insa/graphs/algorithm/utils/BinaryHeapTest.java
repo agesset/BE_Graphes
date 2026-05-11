@@ -12,5 +12,5 @@ public class BinaryHeapTest extends PriorityQueueTest {
             PriorityQueue<MutableInteger> queue) {
         return new BinaryHeap<>((BinaryHeap<MutableInteger>) queue);
     }
-
+    
 }
