@@ -3,36 +3,36 @@ package org.insa.graphs.algorithm.shortestpath;
 import org.insa.graphs.model.Node;
 import org.insa.graphs.model.Arc;
 
-public class Label {
+public class Label implements Comparable<Label> {
     
-    private Node current_node;
+    private Node currentNode;
     private boolean marked;
     private int cost;
-    private int marked_cost;
-    private Arc predecessor_arc;
+    private int markedCost;
+    private Arc predecessorArc;
     
-    public Label(Node current_node, boolean marked, int cost, int marked_cost, Arc predecessor_arc) {
-        this.current_node = current_node;
+    public Label(Node currentNode, boolean marked, int cost, int markedCost, Arc predecessorArc) {
+        this.currentNode = currentNode;
         this.marked = marked;
         this.cost = cost;
-        this.marked_cost = marked_cost;
-        this.predecessor_arc = predecessor_arc;
+        this.markedCost = markedCost;
+        this.predecessorArc = predecessorArc;
     }
 
-    public Label(boolean marked, int cost, int marked_cost, Arc predecessor_arc) {
-        current_node = null;
+    public Label(boolean marked, int cost, int markedCost, Arc predecessorArc) {
+        currentNode = null;
         this.marked = marked;
         this.cost = cost;
-        this.marked_cost = marked_cost;
-        this.predecessor_arc = predecessor_arc;
+        this.markedCost = markedCost;
+        this.predecessorArc = predecessorArc;
     }
 
-    public Node getCurrent_node() {
-        return current_node;
+    public Node getcurrentNode() {
+        return currentNode;
     }
 
-    public void setCurrent_node(Node current_node) {
-        this.current_node = current_node;
+    public void setcurrentNode(Node currentNode) {
+        this.currentNode = currentNode;
     }
 
     public boolean isMarked() {
@@ -51,20 +51,36 @@ public class Label {
         this.cost = cost;
     }
 
-    public int getMarked_cost() {
-        return marked_cost;
+    public int getmarkedCost() {
+        return markedCost;
     }
 
-    public void setMarked_cost(int marked_cost) {
-        this.marked_cost = marked_cost;
+    public void setmarkedCost(int markedCost) {
+        this.markedCost = markedCost;
     }
 
-    public Arc getPredecessor_arc() {
-        return predecessor_arc;
+    public Arc getpredecessorArc() {
+        return predecessorArc;
     }
 
-    public void setPredecessor_arc(Arc predecessor_arc) {
-        this.predecessor_arc = predecessor_arc;
+    public void setpredecessorArc(Arc predecessorArc) {
+        this.predecessorArc = predecessorArc;
+    }
+
+    @Override
+    public int compareTo(Label other) {
+
+        // Null safety check
+        if (other == null) {
+            throw new NullPointerException("Cannot compare Label with null");
+        }
+
+        // Safe comparison (avoids integer overflow)
+        return Integer.compare(this.getCost(), other.getCost());
+    }
+
+    public void mark() {
+        this.setMarked(true);
     }
 
 }
