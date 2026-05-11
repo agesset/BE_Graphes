@@ -7,22 +7,22 @@ public class Label {
     
     private Node current_node;
     private boolean marked;
-    // private int cost;
+    private int cost;
     private int marked_cost;
     private Arc predecessor_arc;
     
-    public Label(Node current_node, boolean marked, int weight, int marked_weight, Arc predecessor_arc) {
+    public Label(Node current_node, boolean marked, int cost, int marked_cost, Arc predecessor_arc) {
         this.current_node = current_node;
         this.marked = marked;
-        // this.cost = cost;
-        this.marked_cost = marked_weight;
+        this.cost = cost;
+        this.marked_cost = marked_cost;
         this.predecessor_arc = predecessor_arc;
     }
 
-    public Label(boolean marked, int marked_cost, Arc predecessor_arc) {
+    public Label(boolean marked, int cost, int marked_cost, Arc predecessor_arc) {
         current_node = null;
         this.marked = marked;
-        // this.cost = cost;
+        this.cost = cost;
         this.marked_cost = marked_cost;
         this.predecessor_arc = predecessor_arc;
     }
@@ -41,6 +41,14 @@ public class Label {
 
     public void setMarked(boolean marked) {
         this.marked = marked;
+    }
+
+    public int getCost() {
+        return cost;
+    }
+
+    public void setCost(int cost) {
+        this.cost = cost;
     }
 
     public int getMarked_cost() {
