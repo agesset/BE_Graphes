@@ -7,31 +7,28 @@ public class Label implements Comparable<Label> {
     
     private Node currentNode;
     private boolean marked;
-    private int cost;
-    private int markedCost;
+    private double cost;
     private Arc predecessorArc;
     
-    public Label(Node currentNode, boolean marked, int cost, int markedCost, Arc predecessorArc) {
+    public Label(Node currentNode, boolean marked, double cost, Arc predecessorArc) {
         this.currentNode = currentNode;
         this.marked = marked;
         this.cost = cost;
-        this.markedCost = markedCost;
         this.predecessorArc = predecessorArc;
     }
 
-    public Label(boolean marked, int cost, int markedCost, Arc predecessorArc) {
+    public Label(boolean marked, double cost, Arc predecessorArc) {
         currentNode = null;
         this.marked = marked;
         this.cost = cost;
-        this.markedCost = markedCost;
         this.predecessorArc = predecessorArc;
     }
 
-    public Node getcurrentNode() {
+    public Node getCurrentNode() {
         return currentNode;
     }
 
-    public void setcurrentNode(Node currentNode) {
+    public void setCurrentNode(Node currentNode) {
         this.currentNode = currentNode;
     }
 
@@ -43,27 +40,19 @@ public class Label implements Comparable<Label> {
         this.marked = marked;
     }
 
-    public int getCost() {
+    public double getCost() {
         return cost;
     }
 
-    public void setCost(int cost) {
+    public void setCost(double cost) {
         this.cost = cost;
     }
 
-    public int getmarkedCost() {
-        return markedCost;
-    }
-
-    public void setmarkedCost(int markedCost) {
-        this.markedCost = markedCost;
-    }
-
-    public Arc getpredecessorArc() {
+    public Arc getPredecessorArc() {
         return predecessorArc;
     }
 
-    public void setpredecessorArc(Arc predecessorArc) {
+    public void setPredecessorArc(Arc predecessorArc) {
         this.predecessorArc = predecessorArc;
     }
 
@@ -76,7 +65,7 @@ public class Label implements Comparable<Label> {
         }
 
         // Safe comparison (avoids integer overflow)
-        return Integer.compare(this.getCost(), other.getCost());
+        return Double.compare(this.getCost(), other.getCost());
     }
 
     public void mark() {

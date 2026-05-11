@@ -23,73 +23,72 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         // parent class ShortestPathAlgorithm)
         final ShortestPathData data = getInputData();
 
-        // TODO: implement the Dijkstra algorithm
         // Retrieve the graph.
         Graph graph = data.getGraph();
-
         final int nbNodes = graph.size();
 
+        if (data.getOrigin().equals(data.getDestination())) {
+            notifyOriginProcessed(data.getOrigin());
+            notifyNodeMarked(data.getOrigin());
+            notifyDestinationReached(data.getDestination());
+            return new ShortestPathSolution(data, Status.OPTIMAL,
+                    new Path(graph, data.getOrigin()));
+        }
+
         // Initialize array of labels
-        int currentLabelSize = 0;
         Label[] labels = new Label[nbNodes];
         Arrays.fill(labels, null);
-        labels[0] = new Label(data.getOrigin(), false, 0, 0, null);
-        ++currentLabelSize;
+        labels[data.getOrigin().getId()] = new Label(data.getOrigin(), false, 0.0, null);
 
         // Initialize heap
         BinaryHeap<Label> heap = new BinaryHeap<Label>();
-        heap.insert(labels[0]);
+        heap.insert(labels[data.getOrigin().getId()]);
 
         // Notify observers about the first event (origin processed).
         notifyOriginProcessed(data.getOrigin());
 
-        // Initialize array of predecessors.
-        Arc[] predecessorArcs = new Arc[nbNodes];
-
         // Actual algorithm, we will assume the graph does not contain negative cost
-        int markedNodes = 0;
-        while (markedNodes < nbNodes) {
-            Label currentLabel = heap.findMin();
-            currentLabel.mark();
-            ++markedNodes;
+        boolean found = false;
 
-            if (markedNodes > 1) {
-                predecessorArcs[currentLabel.getpredecessorArc().getOrigin().getId()] = currentLabel.getpredecessorArc();
+        while (!found && !heap.isEmpty()) {
+
+            Label currentLabel = heap.deleteMin();
+            currentLabel.mark();
+
+            notifyNodeMarked(currentLabel.getCurrentNode());
+
+            if (currentLabel.getCurrentNode().equals(data.getDestination())) {
+                found = true;
+                break;
             }
 
-            for (Arc successor : currentLabel.getcurrentNode().getSuccessors()) {
-                
-                //Small test to check allowed roads...
+            for (Arc successor : currentLabel.getCurrentNode().getSuccessors()) {
+
+                // Small test to check allowed roads...
                 if (!data.isAllowed(successor)) {
                     continue;
                 }
 
-                Label successorLabel = null;
-                for (int i = 0; i < nbNodes; i++) {
-                    if (successor.getDestination().equals(labels[i].getcurrentNode())) {
-                        successorLabel = labels[i];
-                        break;
-                    }
-                }
+                double newCost = currentLabel.getCost() + data.getCost(successor);
+                Label successorLabel = labels[successor.getDestination().getId()];
 
                 if (successorLabel == null) {
-                    labels[currentLabelSize - 1] = new Label(successor.getDestination(), false, 0, 0, successor);
+                    successorLabel = new Label(
+                            successor.getDestination(),
+                            false,
+                            newCost,
+                            successor);
+
+                    labels[successor.getDestination().getId()] = successorLabel;
+                    heap.insert(successorLabel);
+
+                    notifyNodeReached(successor.getDestination());
                 }
-
-                if (!successorLabel.isMarked()) {
-                    float newCost = (currentLabel.getCost() + successor.getLength());
-
-                    if (successorLabel.getCost() > newCost) {
-                        successorLabel.setCost((int)newCost);
-
-                        int indexOfSuccessor = heap.indexOf(successorLabel);
-                        
-                        if (indexOfSuccessor != -1) {
-                            heap.remove(successorLabel);
-                        }
-                        
-                        heap.insert(successorLabel);
-                    }
+                else if (!successorLabel.isMarked() && successorLabel.getCost() > newCost) {
+                    heap.remove(successorLabel);
+                    successorLabel.setCost(newCost);
+                    successorLabel.setPredecessorArc(successor);
+                    heap.insert(successorLabel);
                 }
             }
         }
@@ -98,20 +97,18 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         ShortestPathSolution solution = null;
 
         // Destination has no predecessor, the solution is infeasible...
-        if (predecessorArcs[data.getDestination().getId()] == null) {
+        if (labels[data.getDestination().getId()] == null
+                || !labels[data.getDestination().getId()].isMarked()) {
             solution = new ShortestPathSolution(data, Status.INFEASIBLE);
-        }
-        else {
-
-            // The destination has been found, notify the observers.
+        } else {
             notifyDestinationReached(data.getDestination());
 
             // Create the path from the array of predecessors...
             ArrayList<Arc> arcs = new ArrayList<>();
-            Arc arc = predecessorArcs[data.getDestination().getId()];
+            Arc arc = labels[data.getDestination().getId()].getPredecessorArc();
             while (arc != null) {
                 arcs.add(arc);
-                arc = predecessorArcs[arc.getOrigin().getId()];
+                arc = labels[arc.getOrigin().getId()].getPredecessorArc();
             }
 
             // Reverse the path...
@@ -125,5 +122,4 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         // when the algorithm terminates, return the solution that has been found
         return solution;
     }
-
 }
