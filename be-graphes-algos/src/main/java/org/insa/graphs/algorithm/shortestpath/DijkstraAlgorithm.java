@@ -8,7 +8,9 @@ import org.insa.graphs.algorithm.AbstractSolution.Status;
 import org.insa.graphs.algorithm.utils.BinaryHeap;
 import org.insa.graphs.model.Arc;
 import org.insa.graphs.model.Graph;
+import org.insa.graphs.model.Node;
 import org.insa.graphs.model.Path;
+import org.insa.graphs.model.Point;
 
 public class DijkstraAlgorithm extends ShortestPathAlgorithm {
 
@@ -38,7 +40,7 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         // Initialize array of labels
         Label[] labels = new Label[nbNodes];
         Arrays.fill(labels, null);
-        labels[data.getOrigin().getId()] = new Label(data.getOrigin(), false, 0.0, null);
+        labels[data.getOrigin().getId()] = this.newLabel(data.getOrigin(), false, 0.0, null, null);
 
         // Initialize heap
         BinaryHeap<Label> heap = new BinaryHeap<Label>();
@@ -73,11 +75,12 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
                 Label successorLabel = labels[successor.getDestination().getId()];
 
                 if (successorLabel == null) {
-                    successorLabel = new Label(
+                    successorLabel = this.newLabel(
                             successor.getDestination(),
                             false,
                             newCost,
-                            successor);
+                            successor,
+                            null);
 
                     labels[successor.getDestination().getId()] = successorLabel;
                     heap.insert(successorLabel);
@@ -122,4 +125,9 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         // when the algorithm terminates, return the solution that has been found
         return solution;
     }
+
+    public Label newLabel(Node currentNode, boolean marked, double cost, Arc predecessorArc, Point origin) {
+        return new Label(currentNode, marked, cost, predecessorArc);
+    }
+    
 }

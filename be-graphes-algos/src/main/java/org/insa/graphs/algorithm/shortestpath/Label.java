@@ -3,17 +3,19 @@ package org.insa.graphs.algorithm.shortestpath;
 import org.insa.graphs.model.Node;
 import org.insa.graphs.model.Arc;
 
-public  class Label implements Comparable<Label> {
+public class Label implements Comparable<Label> {
     
     private Node currentNode;
     private boolean marked;
     private double cost;
+    private double estimatedCost;
     private Arc predecessorArc;
     
     public Label(Node currentNode, boolean marked, double cost, Arc predecessorArc) {
         this.currentNode = currentNode;
         this.marked = marked;
         this.cost = cost;
+        this.estimatedCost = 0.0;
         this.predecessorArc = predecessorArc;
     }
 
@@ -21,6 +23,15 @@ public  class Label implements Comparable<Label> {
         currentNode = null;
         this.marked = marked;
         this.cost = cost;
+        this.estimatedCost = 0.0;
+        this.predecessorArc = predecessorArc;
+    }
+
+    public Label(Node currentNode, boolean marked, double cost, double estimatedCost, Arc predecessorArc) {
+        this.currentNode = currentNode;
+        this.marked = marked;
+        this.cost = cost;
+        this.estimatedCost = estimatedCost;
         this.predecessorArc = predecessorArc;
     }
 
@@ -44,16 +55,20 @@ public  class Label implements Comparable<Label> {
         return cost;
     }
 
-    public  double  getTotalCost() {
-        return cost;
+    public void setCost(double cost) {
+        this.cost = cost;
     }
 
     public double getEstimatedCost() {
-        return 0.0;
+        return estimatedCost;
     }
 
-    public void setCost(double cost) {
-        this.cost = cost;
+    public void setEstimatedCost(double cost) {
+        this.cost = estimatedCost;
+    }
+
+    public double getTotalCost() {
+        return getCost() + getEstimatedCost();
     }
 
     public Arc getPredecessorArc() {
@@ -73,21 +88,17 @@ public  class Label implements Comparable<Label> {
         }
 
         // Safe comparison (avoids integer overflow)
-        int cmp = Double.compare(this.getTotalCost(), other.getTotalCost());
-
-        // If the distances are equal
-        if(cmp == 0) {
-            return Double.compare(this.getEstimatedCost(), other.getEstimatedCost());
+        int comparedTotalCost = Double.compare(this.getTotalCost(), other.getTotalCost());
+        if (comparedTotalCost != 0) {
+            return comparedTotalCost;
         }
-        else{
-            return cmp;
+        else {
+            return Double.compare(this.getEstimatedCost(), other.estimatedCost);
         }
     }
 
     public void mark() {
         this.setMarked(true);
     }
-
-
 
 }
