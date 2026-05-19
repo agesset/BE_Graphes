@@ -27,6 +27,7 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
 
         // Retrieve the graph.
         Graph graph = data.getGraph();
+        
         final int nbNodes = graph.size();
 
         if (data.getOrigin().equals(data.getDestination())) {
@@ -40,7 +41,7 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         // Initialize array of labels
         Label[] labels = new Label[nbNodes];
         Arrays.fill(labels, null);
-        labels[data.getOrigin().getId()] = this.newLabel(data.getOrigin(), false, 0.0, null, null);
+        labels[data.getOrigin().getId()] = this.newLabel(data.getOrigin(), false, 0.0, null);
 
         // Initialize heap
         BinaryHeap<Label> heap = new BinaryHeap<Label>();
@@ -79,8 +80,7 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
                             successor.getDestination(),
                             false,
                             newCost,
-                            successor,
-                            null);
+                            successor);
 
                     labels[successor.getDestination().getId()] = successorLabel;
                     heap.insert(successorLabel);
@@ -126,7 +126,7 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
         return solution;
     }
 
-    public Label newLabel(Node currentNode, boolean marked, double cost, Arc predecessorArc, Point origin) {
+    public Label newLabel(Node currentNode, boolean marked, double cost, Arc predecessorArc) {
         return new Label(currentNode, marked, cost, predecessorArc);
     }
     
