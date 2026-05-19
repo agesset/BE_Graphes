@@ -3,7 +3,7 @@ package org.insa.graphs.algorithm.shortestpath;
 import org.insa.graphs.model.Node;
 import org.insa.graphs.model.Arc;
 
-public class Label implements Comparable<Label> {
+public  class Label implements Comparable<Label> {
     
     private Node currentNode;
     private boolean marked;
@@ -44,6 +44,14 @@ public class Label implements Comparable<Label> {
         return cost;
     }
 
+    public  double  getTotalCost() {
+        return cost;
+    }
+
+    public double getEstimatedCost() {
+        return 0.0;
+    }
+
     public void setCost(double cost) {
         this.cost = cost;
     }
@@ -65,11 +73,21 @@ public class Label implements Comparable<Label> {
         }
 
         // Safe comparison (avoids integer overflow)
-        return Double.compare(this.getCost(), other.getCost());
+        int cmp = Double.compare(this.getTotalCost(), other.getTotalCost());
+
+        // If the distances are equal
+        if(cmp == 0) {
+            return Double.compare(this.getEstimatedCost(), other.getEstimatedCost());
+        }
+        else{
+            return cmp;
+        }
     }
 
     public void mark() {
         this.setMarked(true);
     }
+
+
 
 }
