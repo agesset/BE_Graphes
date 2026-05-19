@@ -10,26 +10,53 @@ import org.insa.graphs.model.Arc;
 import org.insa.graphs.model.Graph;
 import org.insa.graphs.model.Node;
 import org.insa.graphs.model.Path;
-import org.insa.graphs.model.Point;
 
+/**
+ * <p>
+ * Implementation of Dijkstra's algorithm for the single-source shortest-path problem.
+ * </p>
+ * <p>
+ * Nodes are explored in increasing order of their cost from the origin, using a
+ * {@link BinaryHeap} of {@link Label}s as the priority queue. The algorithm assumes
+ * that every arc cost is non-negative.
+ * </p>
+ * <p>
+ * Label creation is delegated to the {@link #newLabel} factory method, which
+ * {@link AStarAlgorithm} overrides to turn this very routine into an A* search: the
+ * main loop below is therefore shared by both algorithms.
+ * </p>
+ */
 public class DijkstraAlgorithm extends ShortestPathAlgorithm {
 
+    /**
+     * Create a Dijkstra algorithm instance for the given shortest-path problem.
+     *
+     * @param data Input data describing the graph, origin, destination and cost.
+     */
     public DijkstraAlgorithm(ShortestPathData data) {
         super(data);
     }
 
+    /**
+     * Run Dijkstra's algorithm and build the corresponding solution.
+     *
+     * @return A {@link ShortestPathSolution}: {@code OPTIMAL} together with the
+     *         shortest path when the destination is reachable, {@code INFEASIBLE}
+     *         otherwise.
+     */
     @Override
     protected ShortestPathSolution doRun() {
 
-        // retrieve data from the input problem (getInputData() is inherited from the
-        // parent class ShortestPathAlgorithm)
+        // Input problem (getInputData() is inherited from ShortestPathAlgorithm).
         final ShortestPathData data = getInputData();
 
-        // Retrieve the graph.
+        // Graph on which the shortest path is searched.
         Graph graph = data.getGraph();
-        
+
         final int nbNodes = graph.size();
 
+        // Trivial case: origin and destination are the same node, the shortest path is
+        // the empty path reduced to that single node.
         if (data.getOrigin().equals(data.getDestination())) {
             notifyOriginProcessed(data.getOrigin());
             notifyNodeMarked(data.getOrigin());
@@ -38,56 +65,63 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
                     new Path(graph, data.getOrigin()));
         }
 
-        // Initialize array of labels
+        // One label per node, indexed by node id; null until the node is reached.
         Label[] labels = new Label[nbNodes];
         Arrays.fill(labels, null);
-        labels[data.getOrigin().getId()] = this.newLabel(data.getOrigin(), false, 0.0, null);
+        labels[data.getOrigin().getId()] =
+                this.newLabel(data.getOrigin(), false, 0.0, null);
 
-        // Initialize heap
+        // Priority queue holding the reached but not yet marked labels.
         BinaryHeap<Label> heap = new BinaryHeap<Label>();
         heap.insert(labels[data.getOrigin().getId()]);
 
         // Notify observers about the first event (origin processed).
         notifyOriginProcessed(data.getOrigin());
 
-        // Actual algorithm, we will assume the graph does not contain negative cost
+        // Main loop. Arc costs are assumed to be non-negative, so the first time a node
+        // is extracted from the heap its cost is already optimal.
         boolean found = false;
 
         while (!found && !heap.isEmpty()) {
 
+            // Extract the cheapest reached label and mark it: its cost is now final.
             Label currentLabel = heap.deleteMin();
             currentLabel.mark();
 
             notifyNodeMarked(currentLabel.getCurrentNode());
 
+            // Stop as soon as the destination has been marked.
             if (currentLabel.getCurrentNode().equals(data.getDestination())) {
                 found = true;
                 break;
             }
 
+            // Relax every outgoing arc of the current node.
             for (Arc successor : currentLabel.getCurrentNode().getSuccessors()) {
 
-                // Small test to check allowed roads...
+                // Skip arcs forbidden by the current filter (e.g. one-way roads).
                 if (!data.isAllowed(successor)) {
                     continue;
                 }
 
+                // Cost of reaching the successor through the current node.
                 double newCost = currentLabel.getCost() + data.getCost(successor);
                 Label successorLabel = labels[successor.getDestination().getId()];
 
                 if (successorLabel == null) {
-                    successorLabel = this.newLabel(
-                            successor.getDestination(),
-                            false,
-                            newCost,
-                            successor);
+                    // Successor reached for the first time: create its label.
+                    successorLabel = this.newLabel(successor.getDestination(), false,
+                            newCost, successor);
 
                     labels[successor.getDestination().getId()] = successorLabel;
                     heap.insert(successorLabel);
 
                     notifyNodeReached(successor.getDestination());
                 }
-                else if (!successorLabel.isMarked() && successorLabel.getCost() > newCost) {
+                else if (!successorLabel.isMarked()
+                        && successorLabel.getCost() > newCost) {
+                    // A cheaper path to an already reached node was found: decrease its
+                    // key (remove, update, then re-insert it into the heap).
                     heap.remove(successorLabel);
                     successorLabel.setCost(newCost);
                     successorLabel.setPredecessorArc(successor);
@@ -96,17 +130,19 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
             }
         }
 
-        // variable that will contain the solution of the shortest path problem
+        // Solution of the shortest-path problem, built below.
         ShortestPathSolution solution = null;
 
-        // Destination has no predecessor, the solution is infeasible...
+        // The destination was never marked: it is unreachable from the origin.
         if (labels[data.getDestination().getId()] == null
                 || !labels[data.getDestination().getId()].isMarked()) {
             solution = new ShortestPathSolution(data, Status.INFEASIBLE);
-        } else {
+        }
+        else {
             notifyDestinationReached(data.getDestination());
 
-            // Create the path from the array of predecessors...
+            // Rebuild the path by following the predecessor arcs backwards, from the
+            // destination up to the origin.
             ArrayList<Arc> arcs = new ArrayList<>();
             Arc arc = labels[data.getDestination().getId()].getPredecessorArc();
             while (arc != null) {
@@ -114,20 +150,31 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
                 arc = labels[arc.getOrigin().getId()].getPredecessorArc();
             }
 
-            // Reverse the path...
+            // Arcs were collected destination-to-origin: restore the correct order.
             Collections.reverse(arcs);
 
-            // Create the final solution.
+            // Wrap the arcs into the final optimal solution.
             solution = new ShortestPathSolution(data, Status.OPTIMAL,
                     new Path(graph, arcs));
         }
 
-        // when the algorithm terminates, return the solution that has been found
         return solution;
     }
 
-    public Label newLabel(Node currentNode, boolean marked, double cost, Arc predecessorArc) {
+    /**
+     * Factory method building the label of a node as it is discovered. Dijkstra creates
+     * a plain label with no heuristic; {@link AStarAlgorithm} overrides this method to
+     * attach an estimated remaining cost and thus obtain an A* search.
+     *
+     * @param currentNode Node the label refers to.
+     * @param marked Whether the node is already marked.
+     * @param cost Cost of the best known path from the origin to the node.
+     * @param predecessorArc Arc used to reach the node, or {@code null} for the origin.
+     * @return A new label for {@code currentNode}.
+     */
+    public Label newLabel(Node currentNode, boolean marked, double cost,
+            Arc predecessorArc) {
         return new Label(currentNode, marked, cost, predecessorArc);
     }
-    
+
 }

@@ -140,7 +140,7 @@ public class BinaryHeap<E extends Comparable<E>> implements PriorityQueue<E> {
                 break;
             }
         }
-        
+
         return index;
     }
 
@@ -151,7 +151,7 @@ public class BinaryHeap<E extends Comparable<E>> implements PriorityQueue<E> {
         if (index == -1) {
             throw new ElementNotFoundException(x);
         }
-        
+
         else {
             if (index == this.currentSize - 1) {
                 --this.currentSize;

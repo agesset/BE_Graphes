@@ -52,22 +52,23 @@ public class BinarySearchTree<E extends Comparable<E>> implements PriorityQueue<
         if (this.elems.contains(x)) {
             // x is known to be here.
 
-            boolean removed = this.sortedSet.remove(x) ;
-            this.elems.remove(x) ;
+            boolean removed = this.sortedSet.remove(x);
+            this.elems.remove(x);
 
             if (!removed) {
-                // The element x was not found in the sorted tree, because its value has changed.
+                // The element x was not found in the sorted tree, because its value has
+                // changed.
                 // However, we know it is here.
 
                 // This forces the sorted set to be reorganized
-                SortedSet<E> ts = this.sortedSet ;
-                this.sortedSet = new TreeSet<>() ;
+                SortedSet<E> ts = this.sortedSet;
+                this.sortedSet = new TreeSet<>();
                 for (E y : ts) {
-                    this.sortedSet.add(y) ;
+                    this.sortedSet.add(y);
                 }
 
-                removed = this.sortedSet.remove(x) ;
-                assert(removed) ;
+                removed = this.sortedSet.remove(x);
+                assert (removed);
             }
         }
         else {

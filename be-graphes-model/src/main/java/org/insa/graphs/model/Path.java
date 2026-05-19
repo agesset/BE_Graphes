@@ -43,7 +43,8 @@ public class Path {
                     Arc currentArc = nodeArcs.get(j);
                     if (currentArc.getDestination() == nodes.get(i + 1)) {
                         if (fastestArc != null) {
-                            if (currentArc.getMinimumTravelTime() < fastestArc.getMinimumTravelTime()) {
+                            if (currentArc.getMinimumTravelTime() < fastestArc
+                                    .getMinimumTravelTime()) {
                                 fastestArc = currentArc;
                             }
                         }
@@ -53,13 +54,16 @@ public class Path {
                     }
                 }
                 if (fastestArc == null)
-                    throw new IllegalArgumentException("Noeud suivant : " + nodes.get(i + 1) + ", pas dans successeurs du noeud courant : " + node);
+                    throw new IllegalArgumentException("Noeud suivant : "
+                            + nodes.get(i + 1)
+                            + ", pas dans successeurs du noeud courant : " + node);
                 else {
                     arcs.add(fastestArc);
                 }
             }
             else {
-                throw new IllegalArgumentException("Le noeud courant : " + node + ", n'a pas de successeurs");
+                throw new IllegalArgumentException(
+                        "Le noeud courant : " + node + ", n'a pas de successeurs");
             }
         }
         return new Path(graph, arcs);
@@ -102,13 +106,16 @@ public class Path {
                     }
                 }
                 if (shortestArc == null)
-                    throw new IllegalArgumentException("Noeud suivant : " + nodes.get(i + 1) + ", pas dans successeurs du noeud courant : " + node);
+                    throw new IllegalArgumentException("Noeud suivant : "
+                            + nodes.get(i + 1)
+                            + ", pas dans successeurs du noeud courant : " + node);
                 else {
                     arcs.add(shortestArc);
                 }
             }
             else {
-                throw new IllegalArgumentException("Le noeud courant : " + node + ", n'a pas de successeurs");
+                throw new IllegalArgumentException(
+                        "Le noeud courant : " + node + ", n'a pas de successeurs");
             }
         }
         return new Path(graph, arcs);
@@ -254,7 +261,8 @@ public class Path {
             return true;
         else if (this.origin == this.arcs.getFirst().getOrigin()) {
             for (int i = 0; i < this.arcs.size() - 1; i++) {
-                if (this.arcs.get(i).getDestination() != this.arcs.get(i + 1).getOrigin()) {
+                if (this.arcs.get(i).getDestination() != this.arcs.get(i + 1)
+                        .getOrigin()) {
                     return false;
                 }
             }
@@ -285,7 +293,7 @@ public class Path {
      *         kilometers-per-hour).
      */
     public double getTravelTime(double speed) {
-        return ((this.getLength() * 3600.0) / (speed * 1000.0)) ;
+        return ((this.getLength() * 3600.0) / (speed * 1000.0));
     }
 
     /**
