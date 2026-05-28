@@ -19,7 +19,7 @@ import org.insa.graphs.model.Node;
  * destination:
  * </p>
  * <ul>
- * <li>in {@code LENGTH} mode that distance is used directly;</li>
+ * <li>in {@code LENGTH} and {@code PEDESTRIAN_LENGTH} modes that distance is used directly;</li>
  * <li>in {@code TIME} mode it is divided by the maximum speed, which turns it into the
  * shortest conceivable travel time.</li>
  * </ul>
@@ -49,14 +49,19 @@ public class AStarAlgorithm extends DijkstraAlgorithm {
      * @param marked Whether the node is already marked.
      * @param cost Cost of the best known path from the origin to the node.
      * @param predecessorArc Arc used to reach the node, or {@code null} for the origin.
-     * @return A new label carrying the estimated remaining cost.
-     * @throws IllegalArgumentException if the cost mode is neither LENGTH nor TIME.
+     * @return A new label carrying the estimated remaining cost. In {@code LENGTH} and
+     *         {@code PEDESTRIAN_LENGTH} modes the estimate is the straight-line distance;
+     *         in {@code TIME} mode it is divided by the maximum speed (falling back to the
+     *         raw distance when no maximum speed is available in the graph statistics).
+     * @throws IllegalArgumentException if the cost mode is not LENGTH, PEDESTRIAN_LENGTH,
+     *         or TIME.
      */
     public Label newLabel(Node currentNode, boolean marked, double cost,
             Arc predecessorArc) {
-        if (getInputData().getMode() == ShortestPathData.Mode.LENGTH) {
-            // Distance mode: the estimate is the geometric distance still to be
-            // covered to reach the destination.
+        if (getInputData().getMode() == ShortestPathData.Mode.LENGTH
+                || getInputData().getMode() == ShortestPathData.Mode.PEDESTRIAN_LENGTH) {
+            // LENGTH / PEDESTRIAN_LENGTH: the estimate is the geometric distance still
+            // to be covered to reach the destination.
             return new Label(
                     currentNode, marked, cost, getInputData().getDestination()
                             .getPoint().distanceTo(currentNode.getPoint()),
@@ -79,7 +84,7 @@ public class AStarAlgorithm extends DijkstraAlgorithm {
                             currentNode.getPoint()) / getInputData().getMaximumSpeed()),
                     predecessorArc);
         }
-        // Defensive guard: ShortestPathData only supports the LENGTH and TIME modes.
+        // Defensive guard: ShortestPathData only supports LENGTH, PEDESTRIAN_LENGTH and TIME.
         throw new IllegalArgumentException(
                 "Unsupported mode: " + getInputData().getMode());
     }

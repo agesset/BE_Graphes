@@ -17,7 +17,7 @@ public abstract class AbstractInputData {
      * @see ArcInspector
      */
     public enum Mode {
-        TIME, LENGTH
+        TIME, LENGTH, PEDESTRIAN_LENGTH
     }
 
     // Graph
@@ -42,6 +42,10 @@ public abstract class AbstractInputData {
      */
     public Graph getGraph() {
         return graph;
+    }
+
+    public ArcInspector getArcInspector() {
+        return arcInspector;
     }
 
     /**

@@ -4,17 +4,16 @@ import java.util.List;
 
 /**
  * Abstract class representing a directed arc in the graph.
- *
  * <p>
  * {@code Arc} is abstract rather than an interface so that common behaviour
  * ({@link #getTravelTime} and {@link #getMinimumTravelTime}) can be shared, while
- * concrete subclasses ({@link ArcForward}, {@link ArcBackward}) can represent
- * two-way roads without duplicating stored data.
+ * concrete subclasses ({@link ArcForward}, {@link ArcBackward}) can represent two-way
+ * roads without duplicating stored data.
  * </p>
  * <p>
  * Arcs must never be instantiated directly; always use
- * {@link Node#linkNodes(Node, Node, float, RoadInformation, java.util.ArrayList)}
- * to guarantee correct pairing of forward and backward arcs.
+ * {@link Node#linkNodes(Node, Node, float, RoadInformation, java.util.ArrayList)} to
+ * guarantee correct pairing of forward and backward arcs.
  * </p>
  */
 public abstract class Arc {

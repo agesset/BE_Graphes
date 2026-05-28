@@ -66,21 +66,6 @@ public class Label implements Comparable<Label> {
     }
 
     /**
-     * Create a label not attached to any node and without a heuristic.
-     *
-     * @param marked Whether the label is already marked.
-     * @param cost Cost of the path from the origin.
-     * @param predecessorArc Arc used to reach the node, or {@code null}.
-     */
-    public Label(boolean marked, double cost, Arc predecessorArc) {
-        currentNode = null;
-        this.marked = marked;
-        this.cost = cost;
-        this.estimatedCost = 0.0;
-        this.predecessorArc = predecessorArc;
-    }
-
-    /**
      * Create a label carrying a heuristic estimate; this is the label used by
      * {@link AStarAlgorithm}.
      *
@@ -104,23 +89,9 @@ public class Label implements Comparable<Label> {
         return currentNode;
     }
 
-    /**
-     * @param currentNode New node for this label.
-     */
-    public void setCurrentNode(Node currentNode) {
-        this.currentNode = currentNode;
-    }
-
     /** @return {@code true} if this label has been marked. */
     public boolean isMarked() {
         return marked;
-    }
-
-    /**
-     * @param marked New marked state for this label.
-     */
-    public void setMarked(boolean marked) {
-        this.marked = marked;
     }
 
     /**
@@ -144,15 +115,6 @@ public class Label implements Comparable<Label> {
      */
     public double getEstimatedCost() {
         return estimatedCost;
-    }
-
-    /**
-     * Set the heuristic estimate of the remaining cost to the destination.
-     *
-     * @param estimatedCost New estimated cost.
-     */
-    public void setEstimatedCost(double estimatedCost) {
-        this.estimatedCost = estimatedCost;
     }
 
     /**
@@ -210,7 +172,7 @@ public class Label implements Comparable<Label> {
 
     /** Mark this label: the shortest cost to its node is now final. */
     public void mark() {
-        this.setMarked(true);
+        this.marked = true;
     }
 
 }

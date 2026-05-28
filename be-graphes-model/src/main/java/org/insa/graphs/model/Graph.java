@@ -6,7 +6,6 @@ import java.util.List;
 
 /**
  * Immutable directed graph represented as an object-oriented <b>adjacency list</b>.
- *
  * <p>
  * The graph holds an unmodifiable list of {@link Node} objects; a node's position in
  * that list is its unique integer identifier. Each node in turn holds the list of its
