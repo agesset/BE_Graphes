@@ -64,7 +64,7 @@ public final class Node {
     // ID of the node.
     private final int id;
 
-    // Point of this graph.
+    // Geographic position of this node.
     private final Point point;
 
     // Successors.

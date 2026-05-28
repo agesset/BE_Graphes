@@ -9,7 +9,7 @@ import java.util.List;
  */
 class ArcForward extends Arc {
 
-    // Destination node.
+    // Origin and destination nodes.
     private final Node origin, destination;
 
     // Length of the road (in meters).

@@ -16,7 +16,7 @@ class ArcBackward extends Arc {
     /**
      * Create a new backward arc which corresponds to the reverse arc of the given arc.
      *
-     * @param originalArc Original forwarc arc corresponding to this backward arc.
+     * @param originalArc Original forward arc corresponding to this backward arc.
      */
     protected ArcBackward(Arc originalArc) {
         this.originalArc = originalArc;

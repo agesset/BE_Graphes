@@ -5,12 +5,13 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * Immutable directed graph represented as an object-oriented <b>adjacency list</b>.
+ *
  * <p>
- * Main graph class.
- * </p>
- * <p>
- * This class acts as a object-oriented <b>adjacency list</b> for a graph, i.e., it
- * holds a list of nodes and each node holds a list of its successors.
+ * The graph holds an unmodifiable list of {@link Node} objects; a node's position in
+ * that list is its unique integer identifier. Each node in turn holds the list of its
+ * outgoing {@link Arc}s (successors), so the overall structure is effectively a
+ * standard adjacency list.
  * </p>
  */
 public final class Graph {

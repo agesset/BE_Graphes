@@ -54,16 +54,15 @@ public class Path {
                     }
                 }
                 if (fastestArc == null)
-                    throw new IllegalArgumentException("Noeud suivant : "
-                            + nodes.get(i + 1)
-                            + ", pas dans successeurs du noeud courant : " + node);
+                    throw new IllegalArgumentException("Next node " + nodes.get(i + 1)
+                            + " is not a successor of current node " + node);
                 else {
                     arcs.add(fastestArc);
                 }
             }
             else {
                 throw new IllegalArgumentException(
-                        "Le noeud courant : " + node + ", n'a pas de successeurs");
+                        "Current node " + node + " has no successors");
             }
         }
         return new Path(graph, arcs);
@@ -106,16 +105,15 @@ public class Path {
                     }
                 }
                 if (shortestArc == null)
-                    throw new IllegalArgumentException("Noeud suivant : "
-                            + nodes.get(i + 1)
-                            + ", pas dans successeurs du noeud courant : " + node);
+                    throw new IllegalArgumentException("Next node " + nodes.get(i + 1)
+                            + " is not a successor of current node " + node);
                 else {
                     arcs.add(shortestArc);
                 }
             }
             else {
                 throw new IllegalArgumentException(
-                        "Le noeud courant : " + node + ", n'a pas de successeurs");
+                        "Current node " + node + " has no successors");
             }
         }
         return new Path(graph, arcs);
