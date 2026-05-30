@@ -28,7 +28,7 @@ import org.junit.Test;
  * Four test groups:
  * </p>
  * <ol>
- * <li>Mode rejection: TIME mode must return INFEASIBLE immediately.</li>
+ * <li>Mode rejection: TIME mode must throw {@link IllegalArgumentException}.</li>
  * <li>Graph too small: no 42 km circuit exists on the INSA campus map (tested for both
  * {@code PEDESTRIAN_LENGTH} and {@code LENGTH} modes).</li>
  * <li>Early termination: when d(origin, destination) &gt; 42 245 m the algorithm breaks
@@ -99,18 +99,16 @@ public class MarathonAlgorithmTest {
     // -------------------------------------------------------------------------
 
     /**
-     * TIME mode is not supported: the algorithm must return INFEASIBLE before
-     * performing any graph exploration.
+     * TIME mode is not supported: the algorithm must throw
+     * {@link IllegalArgumentException} before performing any graph exploration.
      */
-    @Test
-    public void infeasibleWhenModeIsTime() {
+    @Test(expected = IllegalArgumentException.class)
+    public void throwsWhenModeIsTime() {
         Graph g = SmallGraphs.diamond();
         ArcInspector time = ArcInspectorFactory.getAllFilters().get(2);
         Node origin = g.get(0);
         ShortestPathData data = new ShortestPathData(g, origin, origin, time);
-        ShortestPathSolution sol =
-                (ShortestPathSolution) new MarathonAlgorithm(data).run();
-        assertEquals(Status.INFEASIBLE, sol.getStatus());
+        new MarathonAlgorithm(data).run();
     }
 
     // -------------------------------------------------------------------------

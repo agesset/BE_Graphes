@@ -67,7 +67,8 @@ public class MarathonAlgorithm extends ShortestPathAlgorithm {
 
         if (data.getMode() != ShortestPathData.Mode.PEDESTRIAN_LENGTH
                 && data.getMode() != ShortestPathData.Mode.LENGTH) {
-            return new ShortestPathSolution(data, Status.INFEASIBLE);
+            throw new IllegalArgumentException(
+                    "MarathonAlgorithm only supports PEDESTRIAN_LENGTH and LENGTH modes");
         }
 
         double marathonLength = 42195;
