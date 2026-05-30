@@ -3,7 +3,6 @@ package org.insa.graphs.algorithm.shortestpath;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Set;
 
 import org.insa.graphs.algorithm.AbstractSolution.Status;
 import org.insa.graphs.algorithm.utils.BinaryHeap;
@@ -29,11 +28,13 @@ import org.insa.graphs.model.Path;
  */
 public class DijkstraAlgorithm extends ShortestPathAlgorithm {
 
-    /** {@code true} when this instance is running as a comeback search inside {@link MarathonAlgorithm}. */
-    protected boolean isMarathoned;
-
-    /** Node IDs that must be skipped during the search; non-{@code null} only in marathon mode. */
-    protected Set<Integer> forbiddenNodes;
+    /**
+     * Boolean array indexed by node ID; {@code forbiddenNodes[id] == true} means the
+     * node must be skipped during the search. {@code null} in standard Dijkstra mode,
+     * non-{@code null} only when acting as a comeback search inside
+     * {@link MarathonAlgorithm}.
+     */
+    protected boolean[] forbiddenNodes;
 
     /**
      * Create a Dijkstra algorithm instance for the given shortest-path problem.
@@ -42,20 +43,21 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
      */
     public DijkstraAlgorithm(ShortestPathData data) {
         super(data);
-        this.isMarathoned = false;
+        this.forbiddenNodes = null;
     }
 
     /**
-     * Create a Dijkstra instance configured as a comeback search for {@link MarathonAlgorithm}.
-     * Nodes whose IDs appear in {@code forbiddenNodes} are silently skipped during the
-     * search so that the return leg cannot revisit nodes already on the outward leg.
+     * Create a Dijkstra instance configured as a comeback search for
+     * {@link MarathonAlgorithm}. Nodes whose IDs appear in {@code forbiddenNodes} are
+     * silently skipped during the search so that the return leg cannot revisit nodes
+     * already on the outward leg.
      *
      * @param data Input data describing the graph, start node, destination and cost.
-     * @param forbiddenNodes Set of node IDs that the search must not visit.
+     * @param forbiddenNodes Boolean array indexed by node ID; a {@code true} entry marks
+     *        that node as forbidden during the search.
      */
-    public DijkstraAlgorithm(ShortestPathData data, Set<Integer> forbiddenNodes) {
+    public DijkstraAlgorithm(ShortestPathData data, boolean[] forbiddenNodes) {
         super(data);
-        this.isMarathoned = true;
         this.forbiddenNodes = forbiddenNodes;
     }
 
@@ -205,15 +207,16 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
     }
 
     /**
-     * Return {@code true} if the node with the given ID must be skipped during the search.
-     * In marathon mode, nodes that already belong to the outward path are forbidden so that
-     * the comeback leg forms a proper circuit without reusing outward-leg nodes.
+     * Return {@code true} if the node with the given ID must be skipped during the
+     * search. In marathon mode, nodes that already belong to the outward path are
+     * forbidden so that the comeback leg forms a proper circuit without reusing
+     * outward-leg nodes.
      *
      * @param nodeId Identifier of the node to test.
-     * @return {@code true} if and only if this instance is in marathon mode and
-     *         {@code nodeId} is in the forbidden set.
+     * @return {@code true} if and only if {@code forbiddenNodes} is non-{@code null} and
+     *         {@code forbiddenNodes[nodeId]} is {@code true}.
      */
     public boolean isCancelled(int nodeId) {
-        return this.isMarathoned && forbiddenNodes.contains(nodeId);
+        return this.forbiddenNodes != null && this.forbiddenNodes[nodeId];
     }
 }

@@ -3,8 +3,6 @@ package org.insa.graphs.algorithm.shortestpath;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.insa.graphs.algorithm.AbstractSolution.Status;
 import org.insa.graphs.algorithm.utils.BinaryHeap;
@@ -13,30 +11,31 @@ import org.insa.graphs.model.Graph;
 import org.insa.graphs.model.Path;
 
 /**
- * Algorithm that searches for a closed pedestrian circuit whose total length equals the
- * marathon distance (42,195 m).
- *
+ * Algorithm that searches for a closed circuit whose total length is within
+ * {@code errorMargin} metres of the marathon distance (42,195 m).
  * <p>
  * The search proceeds in two phases:
  * </p>
  * <ol>
- * <li><em>Outward exploration.</em>  A priority-queue search driven by {@link LabelMarathon}
- *     expands nodes outward from the origin.  Labels are ordered by how close the optimistic
- *     circuit estimate — outward cost plus straight-line return distance — is to the marathon
- *     target, so the most promising nodes are expanded first.</li>
- * <li><em>Comeback search.</em>  When a node's optimistic estimate falls within a tolerance
- *     window ({@code lambda = 4,220 m}) around the target, a {@link DijkstraAlgorithm}
- *     comeback is launched from that node to the destination.  The comeback is forbidden from
- *     revisiting any node already on the outward path, ensuring a proper circuit without
- *     repeated nodes.</li>
+ * <li><em>Outward exploration.</em> A priority-queue search driven by
+ * {@link LabelMarathon} expands nodes outward from the origin. Labels are ordered by
+ * how close the optimistic circuit estimate — outward cost plus straight-line return
+ * distance — is to the marathon target, so the most promising nodes are expanded
+ * first.</li>
+ * <li><em>Comeback search.</em> When a node's optimistic estimate falls within a
+ * tolerance window ({@code lambda = 4,220 m}) around the target, an
+ * {@link AStarAlgorithm} comeback is launched from that node to the destination. The
+ * comeback is forbidden from revisiting any node already on the outward path, ensuring
+ * a proper circuit without repeated nodes.</li>
  * </ol>
  * <p>
- * A solution is accepted when the combined outward and comeback length exactly equals the
- * marathon distance ({@code errorMargin = 0 m}).
+ * A solution is accepted when the combined outward and comeback length lies within
+ * {@code errorMargin = 50 m} of the marathon distance.
  * </p>
  * <p>
- * Only {@link ShortestPathData.Mode#PEDESTRIAN_LENGTH} is supported; any other mode
- * immediately returns {@link org.insa.graphs.algorithm.AbstractSolution.Status#INFEASIBLE}.
+ * Both {@link ShortestPathData.Mode#PEDESTRIAN_LENGTH} and
+ * {@link ShortestPathData.Mode#LENGTH} are supported; any other mode immediately returns
+ * {@link org.insa.graphs.algorithm.AbstractSolution.Status#INFEASIBLE}.
  * </p>
  */
 public class MarathonAlgorithm extends ShortestPathAlgorithm {
@@ -44,9 +43,9 @@ public class MarathonAlgorithm extends ShortestPathAlgorithm {
     /**
      * Create a marathon-algorithm instance for the given shortest-path problem.
      *
-     * @param data Input data describing the graph, origin, destination and cost inspector.
-     *             The {@link ShortestPathData#getMode() mode} must be
-     *             {@link ShortestPathData.Mode#PEDESTRIAN_LENGTH}.
+     * @param data Input data describing the graph, origin, destination and cost
+     *        inspector. The {@link ShortestPathData#getMode() mode} must be
+     *        {@link ShortestPathData.Mode#PEDESTRIAN_LENGTH}.
      */
     public MarathonAlgorithm(ShortestPathData data) {
         super(data);
@@ -55,9 +54,10 @@ public class MarathonAlgorithm extends ShortestPathAlgorithm {
     /**
      * Execute the marathon-circuit search and return the solution.
      *
-     * @return A {@link ShortestPathSolution}: {@code OPTIMAL} with the circuit path when a
-     *         valid marathon-length loop is found; {@code INFEASIBLE} if the input mode is
-     *         not {@code PEDESTRIAN_LENGTH} or if no circuit of the required length exists.
+     * @return A {@link ShortestPathSolution}: {@code OPTIMAL} with the circuit path when
+     *         a valid loop is found within {@code errorMargin} of the marathon distance;
+     *         {@code INFEASIBLE} if the input mode is neither {@code PEDESTRIAN_LENGTH}
+     *         nor {@code LENGTH}, or if no such circuit exists.
      */
     @Override
     protected ShortestPathSolution doRun() {
@@ -65,7 +65,8 @@ public class MarathonAlgorithm extends ShortestPathAlgorithm {
         // Input problem (getInputData() is inherited from ShortestPathAlgorithm).
         ShortestPathData data = getInputData();
 
-        if (data.getMode() != ShortestPathData.Mode.PEDESTRIAN_LENGTH) {
+        if (data.getMode() != ShortestPathData.Mode.PEDESTRIAN_LENGTH
+                && data.getMode() != ShortestPathData.Mode.LENGTH) {
             return new ShortestPathSolution(data, Status.INFEASIBLE);
         }
 
@@ -97,8 +98,8 @@ public class MarathonAlgorithm extends ShortestPathAlgorithm {
         // Notify observers about the first event (origin processed).
         notifyOriginProcessed(data.getOrigin());
 
-        // Main loop. Arc costs are assumed to be non-negative, so the first time a node
-        // is extracted from the heap its cost is already optimal.
+        // Main loop: expand nodes in order of how close their optimistic circuit estimate
+        // is to the marathon target.
         boolean found = false;
 
         while (!found && !heap.isEmpty()) {
@@ -107,35 +108,39 @@ public class MarathonAlgorithm extends ShortestPathAlgorithm {
             LabelMarathon currentLabel = heap.deleteMin();
             currentLabel.mark();
 
+            // Early termination: estimatedTotal is a lower bound on any real circuit
+            // reachable from this label. All remaining labels have an equal or higher
+            // lower bound, so no valid solution can be found.
+            if (currentLabel.getCost()
+                    + currentLabel.getEstimatedCost() > marathonLength + errorMargin) {
+                break;
+            }
+
             notifyNodeMarked(currentLabel.getCurrentNode());
 
-            // If the estimated total circuit length (cost so far + straight-line back
-            // to
-            // destination) is within the lambda window around the marathon target, try
-            // a
-            // Dijkstra comeback from this node. This fires at most once per extracted
-            // node
-            // and only when the estimate is plausible — avoiding thousands of Dijkstra
-            // calls.
+            // If the optimistic circuit estimate (outward cost + straight-line return
+            // distance) falls within the lambda window around the marathon target, launch
+            // an A* comeback from this node. This fires at most once per extracted node
+            // and only when the estimate is plausible, avoiding many unnecessary A* calls.
             double estimatedTotal =
                     currentLabel.getCost() + currentLabel.getEstimatedCost();
             if (estimatedTotal >= marathonLength - lambda
                     && estimatedTotal <= marathonLength + lambda) {
 
-                Set<Integer> outwardPathNodes = new HashSet<>();
+                boolean[] outwardPathNodes = new boolean[nbNodes];
                 Arc pathArc = labels[currentLabel.getCurrentNode().getId()]
                         .getPredecessorArc();
                 while (pathArc != null) {
-                    outwardPathNodes.add(pathArc.getDestination().getId());
-                    outwardPathNodes.add(pathArc.getOrigin().getId());
+                    outwardPathNodes[pathArc.getDestination().getId()] = true;
+                    outwardPathNodes[pathArc.getOrigin().getId()] = true;
                     pathArc = labels[pathArc.getOrigin().getId()].getPredecessorArc();
                 }
-                outwardPathNodes.remove(currentLabel.getCurrentNode().getId());
+                outwardPathNodes[currentLabel.getCurrentNode().getId()] = false;
                 // For a closed circuit origin == destination; ensure the comeback can
                 // reach its target even though the origin was recorded as a path node.
-                outwardPathNodes.remove(data.getDestination().getId());
+                outwardPathNodes[data.getDestination().getId()] = false;
 
-                comebackSolution = new DijkstraAlgorithm(
+                comebackSolution = new AStarAlgorithm(
                         new ShortestPathData(graph, currentLabel.getCurrentNode(),
                                 data.getDestination(), data.getArcInspector()),
                         outwardPathNodes).doRun();

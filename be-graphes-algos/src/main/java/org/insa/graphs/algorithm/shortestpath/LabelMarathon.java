@@ -5,8 +5,8 @@ import org.insa.graphs.model.Arc;
 
 /**
  * <p>
- * Label attached to a {@link Node} while {@link MarathonAlgorithm} searches for a closed
- * itinerary whose total length is close to the marathon distance.
+ * Label attached to a {@link Node} while {@link MarathonAlgorithm} searches for a
+ * closed itinerary whose total length is close to the marathon distance.
  * </p>
  * <p>
  * It plays the same role as {@link Label} &mdash; it records the outward cost, a
@@ -47,7 +47,8 @@ public class LabelMarathon implements Comparable<LabelMarathon> {
      * @param currentNode Node this label refers to.
      * @param marked Whether the node is already marked.
      * @param cost Length of the outward path from the origin to the node.
-     * @param estimatedCost Straight-line distance from the node back to the destination.
+     * @param estimatedCost Straight-line distance from the node back to the
+     *        destination.
      * @param predecessorArc Arc used to reach the node, or {@code null} for the origin.
      * @param marathonLength Target circuit length the marathon itinerary must approach.
      */
@@ -105,8 +106,9 @@ public class LabelMarathon implements Comparable<LabelMarathon> {
      * @return The marathon distance still missing from the optimistic out-and-back
      *         estimate, that is {@code marathonLength - (cost + estimatedCost)}. A
      *         positive value means the circuit is still shorter than the target, a
-     *         negative one means it already overshoots it. This is the key used to order
-     *         labels in the priority queue (see {@link #compareTo(LabelMarathon)}).
+     *         negative one means it already overshoots it. This is the key used to
+     *         order labels in the priority queue (see
+     *         {@link #compareTo(LabelMarathon)}).
      */
     public double getNotComebackTotalCost() {
         return getMarathonLength() - (getCost() + getEstimatedCost());
@@ -130,12 +132,12 @@ public class LabelMarathon implements Comparable<LabelMarathon> {
      * <p>
      * The ordering key is {@link #getNotComebackTotalCost()}, i.e.
      * {@code marathonLength - (cost + estimatedCost)}. A label that has not yet reached
-     * the target keeps a key in {@code [0, marathonLength]} &mdash; the smaller the key,
-     * the closer the circuit is to completion. A label that already overshoots the
-     * target has a negative key; it is remapped to {@code cost + estimatedCost} (a value
-     * greater than {@code marathonLength}) so that overshooting labels are always
-     * examined after the others. Ties are broken on the estimated cost, favouring labels
-     * closer to the destination.
+     * the target keeps a key in {@code [0, marathonLength]} &mdash; the smaller the
+     * key, the closer the circuit is to completion. A label that already overshoots the
+     * target has a negative key; it is remapped to {@code cost + estimatedCost} (a
+     * value greater than {@code marathonLength}) so that overshooting labels are always
+     * examined after the others. Ties are broken on the estimated cost, favouring
+     * labels closer to the destination.
      * </p>
      *
      * @param other Label to compare this label to.
@@ -177,7 +179,7 @@ public class LabelMarathon implements Comparable<LabelMarathon> {
         }
     }
 
-    /** Mark this label: the shortest cost to its node is now final. */
+    /** Mark this label as definitively expanded; it will not be relaxed again. */
     public void mark() {
         this.marked = true;
     }
