@@ -49,8 +49,8 @@ public class AStarAlgorithm extends DijkstraAlgorithm {
      * @param forbiddenNodes Boolean array indexed by node ID; a {@code true} entry marks
      *        that node as forbidden during the search.
      */
-    public AStarAlgorithm(ShortestPathData data, boolean[] forbiddenNodes) {
-        super(data, forbiddenNodes);
+    public AStarAlgorithm(ShortestPathData data, boolean[] forbiddenNodes, double lambda) {
+        super(data, forbiddenNodes, lambda);
     }
 
     /**

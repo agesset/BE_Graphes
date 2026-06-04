@@ -141,10 +141,12 @@ public class MarathonAlgorithm extends ShortestPathAlgorithm {
                 // reach its target even though the origin was recorded as a path node.
                 outwardPathNodes[data.getDestination().getId()] = false;
 
+                double maxComebackLength =
+                        marathonLength + errorMargin - currentLabel.getCost();
                 comebackSolution = new AStarAlgorithm(
                         new ShortestPathData(graph, currentLabel.getCurrentNode(),
                                 data.getDestination(), data.getArcInspector()),
-                        outwardPathNodes).doRun();
+                        outwardPathNodes, maxComebackLength).doRun();
 
                 if (comebackSolution.getStatus() == Status.OPTIMAL) {
                     double totalLength = currentLabel.getCost()

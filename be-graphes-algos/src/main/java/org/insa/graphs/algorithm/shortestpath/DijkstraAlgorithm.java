@@ -36,6 +36,8 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
      */
     protected boolean[] forbiddenNodes;
 
+    protected double lambda;
+
     /**
      * Create a Dijkstra algorithm instance for the given shortest-path problem.
      *
@@ -44,6 +46,7 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
     public DijkstraAlgorithm(ShortestPathData data) {
         super(data);
         this.forbiddenNodes = null;
+        this.lambda = -1;
     }
 
     /**
@@ -56,9 +59,10 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
      * @param forbiddenNodes Boolean array indexed by node ID; a {@code true} entry marks
      *        that node as forbidden during the search.
      */
-    public DijkstraAlgorithm(ShortestPathData data, boolean[] forbiddenNodes) {
+    public DijkstraAlgorithm(ShortestPathData data, boolean[] forbiddenNodes, double lambda) {
         super(data);
         this.forbiddenNodes = forbiddenNodes;
+        this.lambda = lambda;
     }
 
     /**
@@ -111,6 +115,10 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
             // Extract the cheapest reached label. Skip forbidden nodes; mark all others
             // as final (their cost is now optimal).
             Label currentLabel = heap.deleteMin();
+
+            if (this.isOut(currentLabel.getCost())) {
+                return new ShortestPathSolution(data, Status.INFEASIBLE);
+            }
 
             if (this.isCancelled(currentLabel.getCurrentNode().getId())) {
                 continue;
@@ -218,5 +226,9 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
      */
     public boolean isCancelled(int nodeId) {
         return this.forbiddenNodes != null && this.forbiddenNodes[nodeId];
+    }
+
+    public boolean isOut(double cost) {
+        return this.lambda != -1 && cost > this.lambda;
     }
 }
