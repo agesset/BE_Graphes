@@ -41,15 +41,17 @@ public class AStarAlgorithm extends DijkstraAlgorithm {
     }
 
     /**
-     * Create an A* instance configured as a comeback search for {@link MarathonAlgorithm}.
-     * The forbidden-nodes array is forwarded to the parent {@link DijkstraAlgorithm} so
-     * that the return leg avoids nodes already on the outward path.
+     * Create an A* instance configured as a comeback search for
+     * {@link MarathonAlgorithm}. The forbidden-nodes array is forwarded to the parent
+     * {@link DijkstraAlgorithm} so that the return leg avoids nodes already on the
+     * outward path.
      *
      * @param data Input data describing the graph, start node, destination and cost.
-     * @param forbiddenNodes Boolean array indexed by node ID; a {@code true} entry marks
-     *        that node as forbidden during the search.
+     * @param forbiddenNodes Boolean array indexed by node ID; a {@code true} entry
+     *        marks that node as forbidden during the search.
      */
-    public AStarAlgorithm(ShortestPathData data, boolean[] forbiddenNodes, double lambda) {
+    public AStarAlgorithm(ShortestPathData data, boolean[] forbiddenNodes,
+            double lambda) {
         super(data, forbiddenNodes, lambda);
     }
 

@@ -34,8 +34,8 @@ import org.insa.graphs.model.Path;
  * </p>
  * <p>
  * Both {@link ShortestPathData.Mode#PEDESTRIAN_LENGTH} and
- * {@link ShortestPathData.Mode#LENGTH} are supported; any other mode immediately returns
- * {@link org.insa.graphs.algorithm.AbstractSolution.Status#INFEASIBLE}.
+ * {@link ShortestPathData.Mode#LENGTH} are supported; any other mode immediately
+ * throws an {@link IllegalArgumentException}.
  * </p>
  */
 public class MarathonAlgorithm extends ShortestPathAlgorithm {
@@ -54,10 +54,11 @@ public class MarathonAlgorithm extends ShortestPathAlgorithm {
     /**
      * Execute the marathon-circuit search and return the solution.
      *
-     * @return A {@link ShortestPathSolution}: {@code OPTIMAL} with the circuit path when
-     *         a valid loop is found within {@code errorMargin} of the marathon distance;
-     *         {@code INFEASIBLE} if the input mode is neither {@code PEDESTRIAN_LENGTH}
-     *         nor {@code LENGTH}, or if no such circuit exists.
+     * @return A {@link ShortestPathSolution}: {@code OPTIMAL} with the circuit path
+     *         when a valid loop is found within {@code errorMargin} of the marathon
+     *         distance; {@code INFEASIBLE} if no such circuit.
+     * @throws IllegalArgumentException if the input mode is neither
+     *         {@code PEDESTRIAN_LENGTH} nor {@code LENGTH}.
      */
     @Override
     protected ShortestPathSolution doRun() {
@@ -99,7 +100,8 @@ public class MarathonAlgorithm extends ShortestPathAlgorithm {
         // Notify observers about the first event (origin processed).
         notifyOriginProcessed(data.getOrigin());
 
-        // Main loop: expand nodes in order of how close their optimistic circuit estimate
+        // Main loop: expand nodes in order of how close their optimistic circuit
+        // estimate
         // is to the marathon target.
         boolean found = false;
 
@@ -120,9 +122,11 @@ public class MarathonAlgorithm extends ShortestPathAlgorithm {
             notifyNodeMarked(currentLabel.getCurrentNode());
 
             // If the optimistic circuit estimate (outward cost + straight-line return
-            // distance) falls within the lambda window around the marathon target, launch
+            // distance) falls within the lambda window around the marathon target,
+            // launch
             // an A* comeback from this node. This fires at most once per extracted node
-            // and only when the estimate is plausible, avoiding many unnecessary A* calls.
+            // and only when the estimate is plausible, avoiding many unnecessary A*
+            // calls.
             double estimatedTotal =
                     currentLabel.getCost() + currentLabel.getEstimatedCost();
             if (estimatedTotal >= marathonLength - lambda

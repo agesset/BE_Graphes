@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import org.insa.graphs.algorithm.AbstractSolution.Status;
-import org.insa.graphs.algorithm.utils.BinaryHeap;
+import org.insa.graphs.algorithm.utils.IndexedBinaryHeap;
 import org.insa.graphs.model.Arc;
 import org.insa.graphs.model.Graph;
 import org.insa.graphs.model.Node;
@@ -56,10 +56,11 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
      * already on the outward leg.
      *
      * @param data Input data describing the graph, start node, destination and cost.
-     * @param forbiddenNodes Boolean array indexed by node ID; a {@code true} entry marks
-     *        that node as forbidden during the search.
+     * @param forbiddenNodes Boolean array indexed by node ID; a {@code true} entry
+     *        marks that node as forbidden during the search.
      */
-    public DijkstraAlgorithm(ShortestPathData data, boolean[] forbiddenNodes, double lambda) {
+    public DijkstraAlgorithm(ShortestPathData data, boolean[] forbiddenNodes,
+            double lambda) {
         super(data);
         this.forbiddenNodes = forbiddenNodes;
         this.lambda = lambda;
@@ -100,7 +101,7 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
                 this.newLabel(data.getOrigin(), false, 0.0, null);
 
         // Priority queue holding the reached but not yet marked labels.
-        BinaryHeap<Label> heap = new BinaryHeap<Label>();
+        IndexedBinaryHeap<Label> heap = new IndexedBinaryHeap<Label>(nbNodes);
         heap.insert(labels[data.getOrigin().getId()]);
 
         // Notify observers about the first event (origin processed).
@@ -221,8 +222,8 @@ public class DijkstraAlgorithm extends ShortestPathAlgorithm {
      * outward-leg nodes.
      *
      * @param nodeId Identifier of the node to test.
-     * @return {@code true} if and only if {@code forbiddenNodes} is non-{@code null} and
-     *         {@code forbiddenNodes[nodeId]} is {@code true}.
+     * @return {@code true} if and only if {@code forbiddenNodes} is non-{@code null}
+     *         and {@code forbiddenNodes[nodeId]} is {@code true}.
      */
     public boolean isCancelled(int nodeId) {
         return this.forbiddenNodes != null && this.forbiddenNodes[nodeId];

@@ -1,5 +1,6 @@
 package org.insa.graphs.algorithm.shortestpath;
 
+import org.insa.graphs.algorithm.utils.Identifiable;
 import org.insa.graphs.model.Node;
 import org.insa.graphs.model.Arc;
 
@@ -28,7 +29,7 @@ import org.insa.graphs.model.Arc;
  * {@link #compareTo(Label)}).
  * </p>
  */
-public class Label implements Comparable<Label> {
+public class Label implements Comparable<Label>, Identifiable {
 
     /** Node this label refers to. */
     private Node currentNode;
@@ -87,6 +88,11 @@ public class Label implements Comparable<Label> {
     /** @return Node this label refers to. */
     public Node getCurrentNode() {
         return currentNode;
+    }
+
+    @Override
+    public int getId() {
+        return currentNode.getId();
     }
 
     /** @return {@code true} if this label has been marked. */

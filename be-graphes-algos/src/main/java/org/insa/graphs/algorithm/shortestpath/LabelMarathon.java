@@ -1,5 +1,6 @@
 package org.insa.graphs.algorithm.shortestpath;
 
+import org.insa.graphs.algorithm.utils.Identifiable;
 import org.insa.graphs.model.Node;
 import org.insa.graphs.model.Arc;
 
@@ -16,7 +17,7 @@ import org.insa.graphs.model.Arc;
  * {@link #compareTo(LabelMarathon)}).
  * </p>
  */
-public class LabelMarathon implements Comparable<LabelMarathon> {
+public class LabelMarathon implements Comparable<LabelMarathon>, Identifiable {
 
     /** Node this label refers to. */
     private Node currentNode;
@@ -65,6 +66,11 @@ public class LabelMarathon implements Comparable<LabelMarathon> {
     /** @return Node this label refers to. */
     public Node getCurrentNode() {
         return currentNode;
+    }
+
+    @Override
+    public int getId() {
+        return currentNode.getId();
     }
 
     /** @return {@code true} if this label has been marked. */
@@ -153,7 +159,8 @@ public class LabelMarathon implements Comparable<LabelMarathon> {
             throw new NullPointerException("Cannot compare Label with null");
         }
 
-        // Remaining marathon distance for each label (negative when the circuit estimate
+        // Remaining marathon distance for each label (negative when the circuit
+        // estimate
         // already exceeds the target).
         double thisTotalCost = getNotComebackTotalCost();
         double otherTotalCost = other.getNotComebackTotalCost();
